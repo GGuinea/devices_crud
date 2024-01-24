@@ -2,6 +2,7 @@ package main
 
 import (
 	"devices_crud/config"
+	"devices_crud/internal/drivers/rest"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,11 +11,7 @@ func main() {
 	config := config.NewConfig()
 
 	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Pong",
-		})
-	})
+	rest.BuildRoutes(router)
 
-	router.Run(":" + config.Router.Port)
+	router.Run("localhost:" + config.Router.Port)
 }
