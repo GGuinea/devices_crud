@@ -1,9 +1,17 @@
 package rest
 
-import "github.com/gin-gonic/gin"
+import (
+	"devices_crud/internal/devices"
+
+	"github.com/gin-gonic/gin"
+)
 
 func BuildRoutes(router *gin.Engine) {
 	router.GET("/ping", ping)
+	devicesPath := router.Group("/v1/devices")
+
+	devices.BuildRoutes(devicesPath)
+
 }
 
 func ping(c *gin.Context) {
