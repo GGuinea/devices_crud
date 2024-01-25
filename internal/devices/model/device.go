@@ -13,3 +13,7 @@ type NewDeviceRequest struct {
 	Name        string `json:"name"`
 	DeviceBrand string `json:"deviceBrand"`
 }
+
+type NewDeviceResponse struct {
+	UUID string `json:"uuid"`
+}

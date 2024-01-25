@@ -34,9 +34,7 @@ func (dr *DevicesRouter) listDevices(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"data": devices,
-	})
+	c.JSON(200, devices)
 }
 
 func (dr *DevicesRouter) getDevice(c *gin.Context) {
@@ -53,9 +51,7 @@ func (dr *DevicesRouter) getDevice(c *gin.Context) {
 		dr.logger.Printf("Device not found: %s", c.Param("id"))
 	}
 
-	c.JSON(200, gin.H{
-		"data": device,
-	})
+	c.JSON(200, device)
 }
 
 func (dr *DevicesRouter) addDevice(c *gin.Context) {
@@ -78,7 +74,7 @@ func (dr *DevicesRouter) addDevice(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, gin.H{
-		"uuid": id,
+	c.JSON(201, model.NewDeviceResponse{
+		UUID: *id,
 	})
 }
