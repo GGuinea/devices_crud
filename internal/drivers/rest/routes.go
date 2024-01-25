@@ -6,12 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BuildRoutes(router *gin.Engine) {
+func BuildRoutes(router *gin.Engine, devicesDeps *devices.DependencyTree) {
 	router.GET("/ping", ping)
 	devicesPath := router.Group("/v1/devices")
 
-	devices.BuildRoutes(devicesPath)
-
+	devices.BuildRoutes(devicesPath, devicesDeps)
 }
 
 func ping(c *gin.Context) {
