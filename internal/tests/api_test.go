@@ -35,9 +35,9 @@ func TestPing(t *testing.T) {
 	}
 }
 
-func TestListDevices(t *testing.T) {
+func TestShouldReturnEmptyListWhenThereIsNoDevices(t *testing.T) {
 	router := setupRouter()
-	expected := "[]"
+	expected := "{\"data\":[]}"
 
 	httpReq, _ := http.NewRequest("GET", "/v1/devices", nil)
 	w := httptest.NewRecorder()

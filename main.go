@@ -4,6 +4,8 @@ import (
 	"devices_crud/config"
 	"devices_crud/internal/devices"
 	"devices_crud/internal/drivers/rest"
+	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,8 +13,9 @@ import (
 func main() {
 	config := config.NewConfig()
 
-	devicesDependencies := devices.NewDevicesDependencies(&devices.DeviceDependencies{UseMocks: config.DevicesService.UseMocks})
-
+	logger := log.New(os.Stdout, "devices_crud: ", log.Ldate|log.Ltime|log.Lshortfile)
+	devicesDependencies := devices.NewDevicesDependencies(
+		&devices.DeviceDependencies{UseMocks: config.DevicesService.UseMocks, Logger: logger})
 
 	router := gin.Default()
 	rest.BuildRoutes(router, devicesDependencies)
