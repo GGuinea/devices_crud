@@ -9,3 +9,6 @@ test:
 
 clean:
 	rm -rf bin
+
+docker-build-run:
+	docker run -p 0.0.0.0:8080:8080 $(docker build -q .)
