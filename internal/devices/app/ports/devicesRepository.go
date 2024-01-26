@@ -23,9 +23,7 @@ type devicesRepositoryMock struct {
 }
 
 func NewDevicesRepositoryMock() DevicesRepository {
-	if DevicesContainer == nil {
-		DevicesContainer = make(map[string]model.Device)
-	}
+	DevicesContainer = make(map[string]model.Device)
 	return &devicesRepositoryMock{}
 }
 
