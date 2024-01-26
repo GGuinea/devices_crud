@@ -50,8 +50,12 @@ func (s *DeviceService) ReplaceDevice(ctx context.Context, device *model.Device)
 	return s.DevicesRepository.Replace(ctx, device)
 }
 
-func (s *DeviceService) PatchDevice(ctx context.Context, device *model.Device) (*model.Device, error) {
-	return s.DevicesRepository.Patch(ctx, device)
+func (s *DeviceService) PatchDevice(ctx context.Context, device *model.PatchDeviceRequest) (*string, error) {
+	id, err := s.DevicesRepository.Patch(ctx, device)
+	if err != nil {
+		return nil, err
+	}
+	return id, nil
 }
 
 func (s *DeviceService) DeleteDevice(ctx context.Context, id string) error {

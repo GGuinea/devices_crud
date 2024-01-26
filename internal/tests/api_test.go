@@ -7,8 +7,10 @@ import (
 	"devices_crud/internal/drivers/rest"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +18,8 @@ import (
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
-	rest.BuildRoutes(router, devices.NewDevicesDependencies(&devices.DeviceDependencies{UseMocks: true}))
+	rest.BuildRoutes(router, devices.NewDevicesDependencies(
+		&devices.DeviceDependencies{UseMocks: true, Logger: log.New(os.Stdout, "TEST: ", log.Ltime)}))
 	return router
 }
 
@@ -166,6 +169,94 @@ func TestShouldReturnDeviceList(t *testing.T) {
 
 	if getDevicesResponse[1].DeviceBrand != "brand_2" {
 		t.Errorf("Expected brand_2, got %s", getDevicesResponse[1].DeviceBrand)
+	}
+}
+
+func TestShouldDeleteDevice(t *testing.T) {
+	router := setupRouter()
+	parsedResponse, _ := addTwoDevices(router)
+
+	httpReq, _ := http.NewRequest("DELETE", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+
+	if w.Code != 200 {
+		t.Errorf("Expected 200, got %d", w.Code)
+	}
+
+	httpReq, _ = http.NewRequest("GET", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+
+	if w.Code != 404 {
+		t.Errorf("Expected 404, got %d", w.Code)
+	}
+}
+
+func TestShouldReplaceDevice(t *testing.T) {
+	router := setupRouter()
+	parsedResponse, _ := addTwoDevices(router)
+
+	body := "{\"name\":\"test_3\",\"deviceBrand\":\"brand_3\"}"
+	bodyReader := bytes.NewReader([]byte(body))
+
+	httpReq, _ := http.NewRequest("PUT", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), bodyReader)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+
+	responseData := w.Body.String()
+	getDeviceResponse := model.Device{}
+	json.Unmarshal([]byte(responseData), &getDeviceResponse)
+
+	if w.Code != 200 {
+		t.Errorf("Expected 200, got %d", w.Code)
+	}
+
+	if getDeviceResponse.ID != parsedResponse.UUID {
+		t.Errorf("Expected %s, got %s", parsedResponse.UUID, getDeviceResponse.ID)
+	}
+
+	if getDeviceResponse.Name != "test_3" {
+		t.Errorf("Expected test_3, got %s", getDeviceResponse.Name)
+	}
+
+	if getDeviceResponse.DeviceBrand != "brand_3" {
+		t.Errorf("Expected brand_3, got %s", getDeviceResponse.DeviceBrand)
+	}
+}
+
+func TestShouldPatchDevice(t *testing.T) {
+	router := setupRouter()
+	parsedResponse, _ := addTwoDevices(router)
+
+	body := "{\"name\":\"test_3\"}"
+	bodyReader := bytes.NewReader([]byte(body))
+
+	httpReq, _ := http.NewRequest("PATCH", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), bodyReader)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+
+	httpReq, _ = http.NewRequest("GET", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+	responseData := w.Body.String()
+	getDeviceResponse := model.Device{}
+	json.Unmarshal([]byte(responseData), &getDeviceResponse)
+
+	if w.Code != 200 {
+		t.Errorf("Expected 200, got %d", w.Code)
+	}
+
+	if getDeviceResponse.ID != parsedResponse.UUID {
+		t.Errorf("Expected %s, got %s", parsedResponse.UUID, getDeviceResponse.ID)
+	}
+
+	if getDeviceResponse.Name != "test_3" {
+		t.Errorf("Expected test_3, got %s", getDeviceResponse.Name)
+	}
+
+	if getDeviceResponse.DeviceBrand != "brand_1" {
+		t.Errorf("Expected brand_1, got %s", getDeviceResponse.DeviceBrand)
 	}
 }
 

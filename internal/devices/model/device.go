@@ -17,3 +17,9 @@ type NewDeviceRequest struct {
 type NewDeviceResponse struct {
 	UUID string `json:"uuid"`
 }
+
+type PatchDeviceRequest struct {
+	ID          string  `json:"id"`
+	Name        *string `json:"name"`
+	DeviceBrand *string `json:"deviceBrand"`
+}

@@ -12,7 +12,7 @@ type DevicesRepository interface {
 	FindByID(ctx context.Context, id *string) (*model.Device, error)
 	FindAll(ctx context.Context) ([]model.Device, error)
 	Replace(ctx context.Context, device *model.Device) (*model.Device, error)
-	Patch(ctx context.Context, device *model.Device) (*model.Device, error)
+	Patch(ctx context.Context, device *model.PatchDeviceRequest) (*string, error)
 	Delete(ctx context.Context, id string) error
 	Search(ctx context.Context, query string) ([]model.Device, error)
 }
@@ -55,9 +55,21 @@ func (r *devicesRepositoryMock) Replace(ctx context.Context, device *model.Devic
 	return device, nil
 }
 
-func (r *devicesRepositoryMock) Patch(ctx context.Context, device *model.Device) (*model.Device, error) {
-	DevicesContainer[device.ID] = *device
-	return device, nil
+func (r *devicesRepositoryMock) Patch(ctx context.Context, device *model.PatchDeviceRequest) (*string, error) {
+	deviceToPatch, ok := DevicesContainer[device.ID]
+	if !ok {
+		return nil, nil
+	}
+
+	if device.Name != nil {
+		deviceToPatch.Name = *device.Name
+	}
+	if device.DeviceBrand != nil {
+		deviceToPatch.DeviceBrand = *device.DeviceBrand
+	}
+
+	DevicesContainer[device.ID] = deviceToPatch
+	return &device.ID, nil
 }
 
 func (r *devicesRepositoryMock) Delete(ctx context.Context, id string) error {
