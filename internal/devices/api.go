@@ -87,7 +87,7 @@ func (dr *DevicesRouter) replaceDevice(c *gin.Context) {
 	err := c.BindJSON(&device)
 	if err != nil {
 		dr.logger.Printf("Error binding device: %s", err)
-		c.JSON(400, gin.H{
+		c.JSON(500, gin.H{
 			"message": "Error binding device",
 		})
 		return
@@ -116,7 +116,7 @@ func (dr *DevicesRouter) deleteDevice(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, nil)
+	c.JSON(204, gin.H{})
 }
 
 func (dr *DevicesRouter) listDevices(c *gin.Context) {
@@ -137,7 +137,7 @@ func (dr *DevicesRouter) getDevice(c *gin.Context) {
 	device, err := dr.devicesService.GetDevice(c.Request.Context(), id)
 	if err != nil {
 		dr.logger.Printf("Error getting device: %s", err)
-		c.JSON(404, gin.H{
+		c.JSON(500, gin.H{
 			"message": "Error getting device",
 		})
 		return
@@ -159,7 +159,7 @@ func (dr *DevicesRouter) addDevice(c *gin.Context) {
 	err := c.BindJSON(&device)
 	if err != nil {
 		dr.logger.Printf("Error binding device: %s", err)
-		c.JSON(400, gin.H{
+		c.JSON(500, gin.H{
 			"message": "Error binding device",
 		})
 		return

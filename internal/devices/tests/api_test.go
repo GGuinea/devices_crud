@@ -130,7 +130,7 @@ func TestShouldDeleteDevice(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, httpReq)
 
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, 204, w.Code)
 
 	httpReq, _ = http.NewRequest("GET", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), nil)
 	w = httptest.NewRecorder()
@@ -221,6 +221,15 @@ func TestShouldNotFoundAnyDevices(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 	assert.NotEqual(t, "", responseData)
 	assert.Equal(t, 0, len(getDevicesResponse))
+}
+
+func TestShoudlReturn404WhenDeviceNotFound(t *testing.T) {
+	router := setupRouter()
+	httpReq, _ := http.NewRequest("GET", "/v1/devices/123", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, 404, w.Code)
 }
 
 func addTwoDevices(router *gin.Engine) (model.NewDeviceResponse, model.NewDeviceResponse) {
