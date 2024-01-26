@@ -25,6 +25,29 @@ func BuildRoutes(router *gin.RouterGroup, devicesDeps *DependencyTree) {
 	router.DELETE("/:id", devicesRouter.deleteDevice)
 	router.PUT("/:id", devicesRouter.replaceDevice)
 	router.PATCH("/:id", devicesRouter.patchDevice)
+	router.GET("/search", devicesRouter.searchDevices)
+}
+
+func (dr *DevicesRouter) searchDevices(c *gin.Context) {
+	query := c.Query("q")
+	if query == "" {
+		dr.logger.Printf("Error searching devices: %s", "query param is required")
+		c.JSON(400, gin.H{
+			"message": "query param is required",
+		})
+		return
+	}
+
+	devices, err := dr.devicesService.SearchDevices(c.Request.Context(), query)
+	if err != nil {
+		dr.logger.Printf("Error searching devices: %s", err)
+		c.JSON(500, gin.H{
+			"message": "Error searching devices",
+		})
+		return
+	}
+
+	c.JSON(200, devices)
 }
 
 func (dr *DevicesRouter) patchDevice(c *gin.Context) {

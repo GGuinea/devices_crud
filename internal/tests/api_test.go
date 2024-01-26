@@ -260,6 +260,44 @@ func TestShouldPatchDevice(t *testing.T) {
 	}
 }
 
+func TestShouldSearchDevices(t *testing.T) {
+	router := setupRouter()
+	dev1, _ := addTwoDevices(router)
+	httpReq, _ := http.NewRequest("GET", "/v1/devices/search?q=brand_1", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+	responseData := w.Body.String()
+	getDevicesResponse := []model.Device{}
+	json.Unmarshal([]byte(responseData), &getDevicesResponse)
+	if w.Code != 200 {
+		t.Errorf("Expected 200, got %d", w.Code)
+	}
+	if len(getDevicesResponse) != 1 {
+		t.Errorf("Expected 1 devices, got %d", len(getDevicesResponse))
+	}
+
+	if getDevicesResponse[0].ID != dev1.UUID {
+		t.Errorf("Expected %s, got %s", dev1.UUID, getDevicesResponse[0].ID)
+	}
+}
+
+func TestShouldNotFoundAnyDevices(t *testing.T) {
+	router := setupRouter()
+	addTwoDevices(router)
+	httpReq, _ := http.NewRequest("GET", "/v1/devices/search?q=brand_3", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, httpReq)
+	responseData := w.Body.String()
+	getDevicesResponse := []model.Device{}
+	json.Unmarshal([]byte(responseData), &getDevicesResponse)
+	if w.Code != 200 {
+		t.Errorf("Expected 200, got %d", w.Code)
+	}
+	if len(getDevicesResponse) != 0 {
+		t.Errorf("Expected 0 devices, got %d", len(getDevicesResponse))
+	}
+}
+
 func addTwoDevices(router *gin.Engine) (model.NewDeviceResponse, model.NewDeviceResponse) {
 	body := "{\"name\":\"test_1\",\"deviceBrand\":\"brand_1\"}"
 	bodyReader := bytes.NewReader([]byte(body))
