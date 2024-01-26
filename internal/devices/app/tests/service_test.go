@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func getDeviceService() *app.DeviceService {
@@ -27,12 +29,9 @@ func TestShouldAddDevice(t *testing.T) {
 	}
 
 	id, err := deviceService.AddDevice(ctx, device)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if id == nil {
-		t.Errorf("Expected id, got nil")
-	}
+
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, id)
 }
 
 func TestShouldGetDevice(t *testing.T) {
@@ -45,23 +44,17 @@ func TestShouldGetDevice(t *testing.T) {
 	}
 
 	id, err := deviceService.AddDevice(ctx, device)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if id == nil {
-		t.Errorf("Expected id, got nil")
-	}
+
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, id)
 
 	deviceFound, err := deviceService.GetDevice(ctx, *id)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if deviceFound == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if deviceFound.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, deviceFound.ID)
-	}
+
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, deviceFound)
+	assert.Equal(t, *id, deviceFound.ID)
+	assert.Equal(t, "Test Device", deviceFound.Name)
+	assert.Equal(t, "Test Brand", deviceFound.DeviceBrand)
 }
 
 func TestShouldGetAllDevices(t *testing.T) {
@@ -89,20 +82,21 @@ func TestShouldGetAllDevices(t *testing.T) {
 	}
 
 	devices, err := deviceService.GetAllDevices(ctx)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if len(devices) != 2 {
-		t.Errorf("Expected 2 devices, got %d", len(devices))
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, devices)
+	assert.Equal(t, 2, len(devices))
+
+	foundDevicesNames := make([]string, 0)
+	foundDevicesBrands := make([]string, 0)
+	for _, device := range devices {
+		foundDevicesNames = append(foundDevicesNames, device.Name)
+		foundDevicesBrands = append(foundDevicesBrands, device.DeviceBrand)
 	}
 
-	if devices[0].Name != "Test Device" {
-		t.Errorf("Expected Test Device, got %s", devices[0].Name)
-	}
-
-	if devices[1].Name != "Test Device 2" {
-		t.Errorf("Expected Test Device 2, got %s", devices[1].Name)
-	}
+	assert.Contains(t, foundDevicesNames, "Test Device")
+	assert.Contains(t, foundDevicesNames, "Test Device 2")
+	assert.Contains(t, foundDevicesBrands, "Test Brand")
+	assert.Contains(t, foundDevicesBrands, "Test Brand 2")
 }
 
 func TestShouldReplaceDevice(t *testing.T) {
@@ -115,43 +109,26 @@ func TestShouldReplaceDevice(t *testing.T) {
 	}
 
 	id, err := deviceService.AddDevice(ctx, device)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if id == nil {
-		t.Errorf("Expected id, got nil")
-	}
+
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, id)
 
 	deviceFound, err := deviceService.GetDevice(ctx, *id)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if deviceFound == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if deviceFound.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, deviceFound.ID)
-	}
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, deviceFound)
+	assert.Equal(t, *id, deviceFound.ID)
+	assert.Equal(t, "Test Device", deviceFound.Name)
+	assert.Equal(t, "Test Brand", deviceFound.DeviceBrand)
 
 	deviceFound.Name = "Test Device 2"
 	deviceFound.DeviceBrand = "Test Brand 2"
 
 	deviceReplaced, err := deviceService.ReplaceDevice(ctx, deviceFound)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if deviceReplaced == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if deviceReplaced.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, deviceReplaced.ID)
-	}
-	if deviceReplaced.Name != "Test Device 2" {
-		t.Errorf("Expected Test Device 2, got %s", deviceReplaced.Name)
-	}
-	if deviceReplaced.DeviceBrand != "Test Brand 2" {
-		t.Errorf("Expected Test Brand 2, got %s", deviceReplaced.DeviceBrand)
-	}
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, deviceReplaced)
+	assert.Equal(t, *id, deviceReplaced.ID)
+	assert.Equal(t, "Test Device 2", deviceReplaced.Name)
+	assert.Equal(t, "Test Brand 2", deviceReplaced.DeviceBrand)
 }
 
 func TestShouldPatchDevice(t *testing.T) {
@@ -164,23 +141,14 @@ func TestShouldPatchDevice(t *testing.T) {
 	}
 
 	id, err := deviceService.AddDevice(ctx, device)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if id == nil {
-		t.Errorf("Expected id, got nil")
-	}
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, id)
 
 	deviceFound, err := deviceService.GetDevice(ctx, *id)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if deviceFound == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if deviceFound.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, deviceFound.ID)
-	}
+
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, deviceFound)
+	assert.Equal(t, *id, deviceFound.ID)
 
 	newName := "Test Device 2"
 	newDeviceBrand := "Test Brand 2"
@@ -192,29 +160,16 @@ func TestShouldPatchDevice(t *testing.T) {
 	}
 
 	idPatched, err := deviceService.PatchDevice(ctx, patchDevice)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if idPatched == nil {
-		t.Errorf("Expected id, got nil")
-	}
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, idPatched)
 
 	devicePatched, err := deviceService.GetDevice(ctx, *idPatched)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if devicePatched == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if devicePatched.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, devicePatched.ID)
-	}
-	if devicePatched.Name != newName {
-		t.Errorf("Expected Test Device 2, got %s", devicePatched.Name)
-	}
-	if devicePatched.DeviceBrand != newDeviceBrand {
-		t.Errorf("Expected Test Brand 2, got %s", devicePatched.DeviceBrand)
-	}
+
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, devicePatched)
+	assert.Equal(t, *id, devicePatched.ID)
+	assert.Equal(t, "Test Device 2", devicePatched.Name)
+	assert.Equal(t, "Test Brand 2", devicePatched.DeviceBrand)
 }
 
 func TestShouldDeleteDevice(t *testing.T) {
@@ -227,36 +182,20 @@ func TestShouldDeleteDevice(t *testing.T) {
 	}
 
 	id, err := deviceService.AddDevice(ctx, device)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if id == nil {
-		t.Errorf("Expected id, got nil")
-	}
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, id)
 
 	deviceFound, err := deviceService.GetDevice(ctx, *id)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if deviceFound == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if deviceFound.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, deviceFound.ID)
-	}
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, deviceFound)
+	assert.Equal(t, *id, deviceFound.ID)
 
 	err = deviceService.DeleteDevice(ctx, *id)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
+	assert.Equal(t, nil, err)
 
 	deviceFound, err = deviceService.GetDevice(ctx, *id)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if deviceFound != nil {
-		t.Errorf("Expected nil, got %s", deviceFound.ID)
-	}
+	assert.Equal(t, nil, err)
+	assert.Nil(t, deviceFound)
 }
 
 func TestShouldNotGetDevice(t *testing.T) {
@@ -264,12 +203,8 @@ func TestShouldNotGetDevice(t *testing.T) {
 	ctx := context.Background()
 
 	deviceFound, err := deviceService.GetDevice(ctx, "invalid_id")
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if deviceFound != nil {
-		t.Errorf("Expected nil, got %s", deviceFound.ID)
-	}
+	assert.Equal(t, nil, err)
+	assert.Nil(t, deviceFound)
 }
 
 func TestShouldNotPatchDevice(t *testing.T) {
@@ -286,15 +221,12 @@ func TestShouldNotPatchDevice(t *testing.T) {
 	}
 
 	idPatched, err := deviceService.PatchDevice(ctx, patchDevice)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if idPatched != nil {
-		t.Errorf("Expected nil, got %s", *idPatched)
-	}
+
+	assert.Equal(t, nil, err)
+	assert.Nil(t, idPatched)
 }
 
-func TestShoudlSearchDevicr(t *testing.T) {
+func TestShouldSearchDevicesByBrand(t *testing.T) {
 	deviceService := getDeviceService()
 	ctx := context.Background()
 
@@ -303,56 +235,35 @@ func TestShoudlSearchDevicr(t *testing.T) {
 		DeviceBrand: "Test Brand",
 	}
 
-	id, err := deviceService.AddDevice(ctx, device)
+	_, err := deviceService.AddDevice(ctx, device)
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
-	if id == nil {
-		t.Errorf("Expected id, got nil")
+
+	device_2 := &model.NewDeviceRequest{
+		Name:        "Test Device 2",
+		DeviceBrand: "Test Brand 2",
 	}
 
-	deviceFound, err := deviceService.GetDevice(ctx, *id)
+	_, err = deviceService.AddDevice(ctx, device_2)
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
-	if deviceFound == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if deviceFound.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, deviceFound.ID)
-	}
 
-	newName := "Test Device 2"
-	newDeviceBrand := "Test Brand 2"
+	devices, err := deviceService.SearchDevices(ctx, "Test Brand")
 
-	patchDevice := &model.PatchDeviceRequest{
-		ID:          *id,
-		Name:        &newName,
-		DeviceBrand: &newDeviceBrand,
-	}
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, nil, devices)
+	assert.Equal(t, 2, len(devices))
 
-	idPatched, err := deviceService.PatchDevice(ctx, patchDevice)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
+	foundDevicesNames := make([]string, 0)
+	foundDevicesBrands := make([]string, 0)
+	for _, device := range devices {
+		foundDevicesNames = append(foundDevicesNames, device.Name)
+		foundDevicesBrands = append(foundDevicesBrands, device.DeviceBrand)
 	}
-	if idPatched == nil {
-		t.Errorf("Expected id, got nil")
-	}
-
-	devicePatched, err := deviceService.GetDevice(ctx, *idPatched)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-	if devicePatched == nil {
-		t.Errorf("Expected device, got nil")
-	}
-	if devicePatched.ID != *id {
-		t.Errorf("Expected %s, got %s", *id, devicePatched.ID)
-	}
-	if devicePatched.Name != newName {
-		t.Errorf("Expected Test Device 2, got %s", devicePatched.Name)
-	}
-	if devicePatched.DeviceBrand != newDeviceBrand {
-		t.Errorf("Expected Test Brand 2, got %s", devicePatched.DeviceBrand)
-	}
+	assert.Contains(t, foundDevicesNames, "Test Device")
+	assert.Contains(t, foundDevicesNames, "Test Device 2")
+	assert.Contains(t, foundDevicesBrands, "Test Brand")
+	assert.Contains(t, foundDevicesBrands, "Test Brand 2")
 }

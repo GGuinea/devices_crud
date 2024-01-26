@@ -78,7 +78,7 @@ func (r *devicesRepositoryMock) Delete(ctx context.Context, id string) error {
 func (r *devicesRepositoryMock) Search(ctx context.Context, query string) ([]model.Device, error) {
 	var devices []model.Device
 	for _, device := range DevicesContainer {
-		if strings.ToLower(device.DeviceBrand) == strings.ToLower(query) {
+		if strings.Contains(strings.ToLower(device.DeviceBrand), strings.ToLower(query)) {
 			devices = append(devices, device)
 		}
 	}

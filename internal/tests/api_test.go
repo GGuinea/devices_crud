@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 func setupRouter() *gin.Engine {
@@ -29,11 +30,7 @@ func TestPing(t *testing.T) {
 
 	responseData := w.Body.String()
 
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
-
-	if responseData != expected {
-		t.Errorf("Expected {\"message\":\"Pong\"}, got %s", responseData)
-	}
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(t, expected, responseData)
 }

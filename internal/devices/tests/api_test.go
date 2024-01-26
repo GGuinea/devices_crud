@@ -14,9 +14,11 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 func setupRouter() *gin.Engine {
+	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	rest.BuildRoutes(router, devices.NewDevicesDependencies(
 		&devices.DeviceDependencies{UseMocks: true, Logger: log.New(os.Stdout, "TEST: ", log.Ltime)}))
@@ -33,13 +35,9 @@ func TestShouldReturnEmptyListWhenThereIsNoDevices(t *testing.T) {
 
 	responseData := w.Body.String()
 
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
-
-	if responseData != expected {
-		t.Errorf("Expected [], got %s", responseData)
-	}
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(t, expected, responseData)
 }
 
 func TestShouldCreateDevice(t *testing.T) {
@@ -52,13 +50,9 @@ func TestShouldCreateDevice(t *testing.T) {
 	router.ServeHTTP(w, httpReq)
 
 	responseData := w.Body.String()
-
-	if w.Code != 201 {
-		t.Errorf("Expected 201, got %d", w.Code)
-	}
-	if responseData == "" {
-		t.Errorf("Expected body, got %s", responseData)
-	}
+	assert.Equal(t, 201, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
 }
 
 func TestShouldReturnDevice(t *testing.T) {
@@ -74,12 +68,9 @@ func TestShouldReturnDevice(t *testing.T) {
 	parsedResponse := model.NewDeviceResponse{}
 	json.Unmarshal([]byte(responseData), &parsedResponse)
 
-	if w.Code != 201 {
-		t.Errorf("Expected 201, got %d", w.Code)
-	}
-	if responseData == "" {
-		t.Errorf("Expected body, got %s", responseData)
-	}
+	assert.Equal(t, 201, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
 
 	httpReq, _ = http.NewRequest("GET", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), nil)
 	w = httptest.NewRecorder()
@@ -88,24 +79,13 @@ func TestShouldReturnDevice(t *testing.T) {
 	responseData = w.Body.String()
 	getDeviceResponse := model.Device{}
 	json.Unmarshal([]byte(responseData), &getDeviceResponse)
-	fmt.Println(getDeviceResponse)
 
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
-
-	if getDeviceResponse.ID != parsedResponse.UUID {
-		t.Errorf("Expected %s, got %s", parsedResponse.UUID, getDeviceResponse.ID)
-	}
-
-	if getDeviceResponse.Name != "test" {
-		t.Errorf("Expected test, got %s", getDeviceResponse.Name)
-	}
-
-	if getDeviceResponse.DeviceBrand != "brand" {
-		t.Errorf("Expected test, got %s", getDeviceResponse.DeviceBrand)
-	}
-
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
+	assert.Equal(t, parsedResponse.UUID, getDeviceResponse.ID)
+	assert.Equal(t, "test", getDeviceResponse.Name)
+	assert.Equal(t, "brand", getDeviceResponse.DeviceBrand)
 }
 
 func TestShouldReturnDeviceList(t *testing.T) {
@@ -120,37 +100,26 @@ func TestShouldReturnDeviceList(t *testing.T) {
 	getDevicesResponse := []model.Device{}
 	json.Unmarshal([]byte(responseData), &getDevicesResponse)
 
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
+	assert.Equal(t, 2, len(getDevicesResponse))
+
+	foundDevicesNames := make([]string, 0)
+	foundDevicesBrands := make([]string, 0)
+	fundDevicesIds := make([]string, 0)
+	for _, device := range getDevicesResponse {
+		foundDevicesNames = append(foundDevicesNames, device.Name)
+		foundDevicesBrands = append(foundDevicesBrands, device.DeviceBrand)
+		fundDevicesIds = append(fundDevicesIds, device.ID)
 	}
 
-	if len(getDevicesResponse) != 2 {
-		t.Errorf("Expected 2 devices, got %d", len(getDevicesResponse))
-	}
-
-	if getDevicesResponse[0].ID != parsedResponse.UUID {
-		t.Errorf("Expected %s, got %s", parsedResponse.UUID, getDevicesResponse[0].ID)
-	}
-
-	if getDevicesResponse[0].Name != "test_1" {
-		t.Errorf("Expected test_1, got %s", getDevicesResponse[0].Name)
-	}
-
-	if getDevicesResponse[0].DeviceBrand != "brand_1" {
-		t.Errorf("Expected brand_1, got %s", getDevicesResponse[0].DeviceBrand)
-	}
-
-	if getDevicesResponse[1].ID != parsedResponse2.UUID {
-		t.Errorf("Expected %s, got %s", parsedResponse2.UUID, getDevicesResponse[1].ID)
-	}
-
-	if getDevicesResponse[1].Name != "test_2" {
-		t.Errorf("Expected test_2, got %s", getDevicesResponse[1].Name)
-	}
-
-	if getDevicesResponse[1].DeviceBrand != "brand_2" {
-		t.Errorf("Expected brand_2, got %s", getDevicesResponse[1].DeviceBrand)
-	}
+	assert.Contains(t, foundDevicesNames, "test_1")
+	assert.Contains(t, foundDevicesNames, "test_2")
+	assert.Contains(t, foundDevicesBrands, "brand_1")
+	assert.Contains(t, foundDevicesBrands, "brand_2")
+	assert.Contains(t, fundDevicesIds, parsedResponse.UUID)
+	assert.Contains(t, fundDevicesIds, parsedResponse2.UUID)
 }
 
 func TestShouldDeleteDevice(t *testing.T) {
@@ -161,17 +130,13 @@ func TestShouldDeleteDevice(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, httpReq)
 
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
+	assert.Equal(t, 200, w.Code)
 
 	httpReq, _ = http.NewRequest("GET", fmt.Sprintf("/v1/devices/%s", parsedResponse.UUID), nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, httpReq)
 
-	if w.Code != 404 {
-		t.Errorf("Expected 404, got %d", w.Code)
-	}
+	assert.Equal(t, 404, w.Code)
 }
 
 func TestShouldReplaceDevice(t *testing.T) {
@@ -189,24 +154,15 @@ func TestShouldReplaceDevice(t *testing.T) {
 	getDeviceResponse := model.Device{}
 	json.Unmarshal([]byte(responseData), &getDeviceResponse)
 
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
-
-	if getDeviceResponse.ID != parsedResponse.UUID {
-		t.Errorf("Expected %s, got %s", parsedResponse.UUID, getDeviceResponse.ID)
-	}
-
-	if getDeviceResponse.Name != "test_3" {
-		t.Errorf("Expected test_3, got %s", getDeviceResponse.Name)
-	}
-
-	if getDeviceResponse.DeviceBrand != "brand_3" {
-		t.Errorf("Expected brand_3, got %s", getDeviceResponse.DeviceBrand)
-	}
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
+	assert.Equal(t, parsedResponse.UUID, getDeviceResponse.ID)
+	assert.Equal(t, "test_3", getDeviceResponse.Name)
+	assert.Equal(t, "brand_3", getDeviceResponse.DeviceBrand)
 }
 
-func TestShouldPatchDevice(t *testing.T) {
+func TestShouldPatchNameOfDevice(t *testing.T) {
 	router := setupRouter()
 	parsedResponse, _ := addTwoDevices(router)
 
@@ -224,21 +180,12 @@ func TestShouldPatchDevice(t *testing.T) {
 	getDeviceResponse := model.Device{}
 	json.Unmarshal([]byte(responseData), &getDeviceResponse)
 
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
-
-	if getDeviceResponse.ID != parsedResponse.UUID {
-		t.Errorf("Expected %s, got %s", parsedResponse.UUID, getDeviceResponse.ID)
-	}
-
-	if getDeviceResponse.Name != "test_3" {
-		t.Errorf("Expected test_3, got %s", getDeviceResponse.Name)
-	}
-
-	if getDeviceResponse.DeviceBrand != "brand_1" {
-		t.Errorf("Expected brand_1, got %s", getDeviceResponse.DeviceBrand)
-	}
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
+	assert.Equal(t, parsedResponse.UUID, getDeviceResponse.ID)
+	assert.Equal(t, "test_3", getDeviceResponse.Name)
+	assert.Equal(t, "brand_1", getDeviceResponse.DeviceBrand)
 }
 
 func TestShouldSearchDevices(t *testing.T) {
@@ -250,16 +197,14 @@ func TestShouldSearchDevices(t *testing.T) {
 	responseData := w.Body.String()
 	getDevicesResponse := []model.Device{}
 	json.Unmarshal([]byte(responseData), &getDevicesResponse)
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
-	if len(getDevicesResponse) != 1 {
-		t.Errorf("Expected 1 devices, got %d", len(getDevicesResponse))
-	}
 
-	if getDevicesResponse[0].ID != dev1.UUID {
-		t.Errorf("Expected %s, got %s", dev1.UUID, getDevicesResponse[0].ID)
-	}
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
+	assert.Equal(t, 1, len(getDevicesResponse))
+	assert.Equal(t, dev1.UUID, getDevicesResponse[0].ID)
+	assert.Equal(t, "test_1", getDevicesResponse[0].Name)
+	assert.Equal(t, "brand_1", getDevicesResponse[0].DeviceBrand)
 }
 
 func TestShouldNotFoundAnyDevices(t *testing.T) {
@@ -271,12 +216,11 @@ func TestShouldNotFoundAnyDevices(t *testing.T) {
 	responseData := w.Body.String()
 	getDevicesResponse := []model.Device{}
 	json.Unmarshal([]byte(responseData), &getDevicesResponse)
-	if w.Code != 200 {
-		t.Errorf("Expected 200, got %d", w.Code)
-	}
-	if len(getDevicesResponse) != 0 {
-		t.Errorf("Expected 0 devices, got %d", len(getDevicesResponse))
-	}
+
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.NotEqual(t, "", responseData)
+	assert.Equal(t, 0, len(getDevicesResponse))
 }
 
 func addTwoDevices(router *gin.Engine) (model.NewDeviceResponse, model.NewDeviceResponse) {
