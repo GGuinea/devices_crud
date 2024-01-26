@@ -67,9 +67,7 @@ func TestShouldGetAllDevices(t *testing.T) {
 	}
 
 	_, err := deviceService.AddDevice(ctx, device)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
+	assert.Equal(t, nil, err)
 
 	device_2 := &model.NewDeviceRequest{
 		Name:        "Test Device 2",
@@ -77,9 +75,7 @@ func TestShouldGetAllDevices(t *testing.T) {
 	}
 
 	_, err = deviceService.AddDevice(ctx, device_2)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
+	assert.Equal(t, nil, err)
 
 	devices, err := deviceService.GetAllDevices(ctx)
 	assert.Equal(t, nil, err)
@@ -236,9 +232,7 @@ func TestShouldSearchDevicesByBrand(t *testing.T) {
 	}
 
 	_, err := deviceService.AddDevice(ctx, device)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
+	assert.Equal(t, nil, err)
 
 	device_2 := &model.NewDeviceRequest{
 		Name:        "Test Device 2",
@@ -246,9 +240,7 @@ func TestShouldSearchDevicesByBrand(t *testing.T) {
 	}
 
 	_, err = deviceService.AddDevice(ctx, device_2)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
+	assert.Equal(t, nil, err)
 
 	devices, err := deviceService.SearchDevices(ctx, "Test Brand")
 
