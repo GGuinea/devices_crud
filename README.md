@@ -3,10 +3,11 @@
 ## Makefile
 Commands:   
 ```
-make build
-make run
-make test
-make clean
+make build              # builds artifact in bin/main
+make run                # runs application
+make test               # cleans test cache and runs all tests in project
+make clean              # deletes bin/ director
+make docker-build-run   # builds docker image and runs container exposing 8080 port
 ```
 
 
