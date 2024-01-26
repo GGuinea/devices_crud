@@ -19,5 +19,5 @@ func main() {
 
 	router := gin.Default()
 	rest.BuildRoutes(router, devicesDependencies)
-	router.Run("localhost:" + config.Router.Port)
+	router.Run(":" + config.Router.Port)
 }

@@ -46,3 +46,9 @@ make clean
     Search devices by brand
     Example: curl -X GET http://localhost:8080/v1/devices/search?q=test
     Response: [{"id":"1","name":"test","deviceBrand":"test","createdAt":"2021-07-04T16:00:00Z"}]
+
+## Dockerfile
+Use this command to run app within a container
+```
+docker run -p 0.0.0.0:8080:8080 $(docker build -q .)
+```
