@@ -1,5 +1,15 @@
 # CRUD API
 
+## Makefile
+Commands:   
+```
+make build
+make run
+make test
+make clean
+```
+
+
 ## Endpoints
 
     [GET] /v1/devices
