@@ -21,11 +21,11 @@ func BuildRoutes(router *gin.RouterGroup, devicesDeps *DependencyTree) {
 
 	router.GET("", devicesRouter.listDevices)
 	router.GET("/:id", devicesRouter.getDevice)
+	router.GET("/search", devicesRouter.searchDevices)
 	router.POST("", devicesRouter.addDevice)
 	router.DELETE("/:id", devicesRouter.deleteDevice)
 	router.PUT("/:id", devicesRouter.replaceDevice)
 	router.PATCH("/:id", devicesRouter.patchDevice)
-	router.GET("/search", devicesRouter.searchDevices)
 }
 
 func (dr *DevicesRouter) searchDevices(c *gin.Context) {
@@ -175,6 +175,6 @@ func (dr *DevicesRouter) addDevice(c *gin.Context) {
 	}
 
 	c.JSON(201, model.NewDeviceResponse{
-		UUID: *id,
+		ID: *id,
 	})
 }
