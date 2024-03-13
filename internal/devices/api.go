@@ -175,6 +175,6 @@ func (dr *DevicesRouter) addDevice(c *gin.Context) {
 	}
 
 	c.JSON(201, model.NewDeviceResponse{
-		ID: *id,
+		UUID: *id,
 	})
 }

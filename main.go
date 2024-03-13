@@ -2,12 +2,11 @@ package main
 
 import (
 	"devices_crud/config"
+
 	"devices_crud/internal/devices"
-	"devices_crud/internal/drivers/rest"
+	"devices_crud/internal/drivers/graph"
 	"log"
 	"os"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -17,7 +16,9 @@ func main() {
 	devicesDependencies := devices.NewDevicesDependencies(
 		&devices.DeviceDependencies{UseMocks: config.DevicesService.UseMocks, Logger: logger})
 
-	router := gin.Default()
-	rest.BuildRoutes(router, devicesDependencies)
-	router.Run(":" + config.Router.Port)
+	// router := gin.Default()
+	// rest.BuildRoutes(router, devicesDependencies)
+	// router.Run(":" + config.Router.Port)
+	gqlServer := graph.RunServer(devicesDependencies)
+	gqlServer.Run()
 }
