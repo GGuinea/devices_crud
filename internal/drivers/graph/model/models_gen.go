@@ -19,3 +19,8 @@ type NewDevice struct {
 
 type Query struct {
 }
+
+type UpdateDevice struct {
+	Name        *string `json:"name,omitempty"`
+	DeviceBrand *string `json:"deviceBrand,omitempty"`
+}

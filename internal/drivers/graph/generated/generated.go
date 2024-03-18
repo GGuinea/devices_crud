@@ -55,7 +55,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateDevice func(childComplexity int, input model.NewDevice) int
-		UpdateDevice func(childComplexity int, deviceID string, input model.NewDevice) int
+		UpdateDevice func(childComplexity int, deviceID string, input model.UpdateDevice) int
 	}
 
 	Query struct {
@@ -66,7 +66,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateDevice(ctx context.Context, input model.NewDevice) (*model.Device, error)
-	UpdateDevice(ctx context.Context, deviceID string, input model.NewDevice) (*model.Device, error)
+	UpdateDevice(ctx context.Context, deviceID string, input model.UpdateDevice) (*model.Device, error)
 }
 type QueryResolver interface {
 	Devices(ctx context.Context) ([]*model.Device, error)
@@ -142,7 +142,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDevice(childComplexity, args["DeviceId"].(string), args["input"].(model.NewDevice)), true
+		return e.complexity.Mutation.UpdateDevice(childComplexity, args["DeviceId"].(string), args["input"].(model.UpdateDevice)), true
 
 	case "Query.device":
 		if e.complexity.Query.Device == nil {
@@ -172,6 +172,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputNewDevice,
+		ec.unmarshalInputUpdateDevice,
 	)
 	first := true
 
@@ -286,9 +287,14 @@ input NewDevice {
   deviceBrand: String!
 }
 
+input UpdateDevice {
+  name: String
+  deviceBrand: String
+}
+
 type Mutation {
   createDevice(input: NewDevice!): Device!
-  updateDevice(DeviceId: String!, input: NewDevice!): Device!
+  updateDevice(DeviceId: String!, input: UpdateDevice!): Device!
 }
 `, BuiltIn: false},
 	{Name: "../schemas/schema.graphqls", Input: `# GraphQL schema example
@@ -330,10 +336,10 @@ func (ec *executionContext) field_Mutation_updateDevice_args(ctx context.Context
 		}
 	}
 	args["DeviceId"] = arg0
-	var arg1 model.NewDevice
+	var arg1 model.UpdateDevice
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNNewDevice2devices_crudᚋinternalᚋdriversᚋgraphᚋmodelᚐNewDevice(ctx, tmp)
+		arg1, err = ec.unmarshalNUpdateDevice2devices_crudᚋinternalᚋdriversᚋgraphᚋmodelᚐUpdateDevice(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -665,7 +671,7 @@ func (ec *executionContext) _Mutation_updateDevice(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateDevice(rctx, fc.Args["DeviceId"].(string), fc.Args["input"].(model.NewDevice))
+		return ec.resolvers.Mutation().UpdateDevice(rctx, fc.Args["DeviceId"].(string), fc.Args["input"].(model.UpdateDevice))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2771,6 +2777,40 @@ func (ec *executionContext) unmarshalInputNewDevice(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateDevice(ctx context.Context, obj interface{}) (model.UpdateDevice, error) {
+	var it model.UpdateDevice
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "deviceBrand"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "deviceBrand":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deviceBrand"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeviceBrand = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3415,6 +3455,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateDevice2devices_crudᚋinternalᚋdriversᚋgraphᚋmodelᚐUpdateDevice(ctx context.Context, v interface{}) (model.UpdateDevice, error) {
+	res, err := ec.unmarshalInputUpdateDevice(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

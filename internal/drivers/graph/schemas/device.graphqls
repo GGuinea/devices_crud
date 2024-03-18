@@ -15,7 +15,12 @@ input NewDevice {
   deviceBrand: String!
 }
 
+input UpdateDevice {
+  name: String
+  deviceBrand: String
+}
+
 type Mutation {
   createDevice(input: NewDevice!): Device!
-  updateDevice(DeviceId: String!, input: NewDevice!): Device!
+  updateDevice(DeviceId: String!, input: UpdateDevice!): Device!
 }

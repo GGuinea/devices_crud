@@ -31,8 +31,23 @@ func (r *mutationResolver) CreateDevice(ctx context.Context, input model.NewDevi
 }
 
 // UpdateDevice is the resolver for the updateDevice field.
-func (r *mutationResolver) UpdateDevice(ctx context.Context, deviceID string, input model.NewDevice) (*model.Device, error) {
-	panic(fmt.Errorf("not implemented: UpdateDevice - updateDevice"))
+func (r *mutationResolver) UpdateDevice(ctx context.Context, deviceID string, input model.UpdateDevice) (*model.Device, error) {
+	r.DeviceService.PatchDevice(ctx, &domain_model.PatchDeviceRequest{
+		ID:          deviceID,
+		Name:        input.Name,
+		DeviceBrand: input.DeviceBrand,
+	})
+
+	res, err := r.DeviceService.GetDevice(ctx, deviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Device{
+		ID:          deviceID,
+		Name:        res.Name,
+		DeviceBrand: res.DeviceBrand,
+	}, nil
 }
 
 // Devices is the resolver for the devices field.
